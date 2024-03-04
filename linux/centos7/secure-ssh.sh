@@ -7,18 +7,22 @@ fi
 
 username=$1
 userhome="/home/$username"
+keypath="/home/miles/SYS265/linux/public-keys/id_rsa.pub"
 
 sudo useradd -m -d $userhome -s /bin/bash $username
 sudo mkdir -p $userhome/.ssh
+sudo cat $keypath | sudo tee -a $userhome/.ssh/authorized_keys
+
 sudo chmod 700 $userhome/.ssh
+sudo chmod 600 $userhome/.ssh/authorized_keys
+
 sudo chown -R $username:$username $userhome/.ssh
 
-sudo -u $username ssh-keygen -t rsa -f $userhome/.ssh/id_rsa -N ""
-sudo -u $username ssh-copy-id miles@10.0.5.200
+
 
 sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#PubkeyAuthentication yes /PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
 
-systemctl restart sshd
+sudo systemctl restart sshd
 echo "User $username has been created and set up with passwordless SSH"
